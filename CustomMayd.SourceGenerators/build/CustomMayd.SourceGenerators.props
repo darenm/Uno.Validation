@@ -1,0 +1,12 @@
+﻿<Project>
+  <ItemGroup>
+    <Analyzer Include="$(MSBuildThisFileDirectory)..\bin\$(Configuration)\netstandard2.0\CustomMayd.SourceGenerators.dll"
+              Condition="Exists('$(MSBuildThisFileDirectory)..\bin')" />
+		<Analyzer Include="$(MSBuildThisFileDirectory)..\tools\CustomMayd.SourceGenerators.dll"
+              Condition="Exists('$(MSBuildThisFileDirectory)..\tools')" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="Exists('$(MSBuildThisFileDirectory)..\bin')">
+    <UpToDateCheck Include="**\*.cs" Exclude="bin\**\*.cs;obj\**\*.cs" />
+  </ItemGroup>
+</Project>
