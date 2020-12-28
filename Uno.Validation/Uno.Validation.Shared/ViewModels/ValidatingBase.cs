@@ -26,6 +26,17 @@ namespace Uno.Validation.Shared.ViewModels
                 return _errors[propertyName];
             }
 
+            if (propertyName == "__AllErrors__")
+            {
+                var allErrors = new List<string>();
+                foreach (var property in _errors)
+                {
+                    allErrors.AddRange(property.Value);
+                }
+
+                return allErrors;
+            }
+
             return Enumerable.Empty<string>();
         }
 

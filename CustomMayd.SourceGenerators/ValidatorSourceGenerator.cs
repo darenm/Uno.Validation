@@ -19,27 +19,28 @@ namespace CustomMayd.SourceGenerators
 
         public void Execute(GeneratorExecutionContext context)
         {
+//#if DEBUG
+//            if (!Debugger.IsAttached)
+//            {
+//                Debugger.Launch();
+//            }
+//#endif
             // Search for the GeneratedPropertyAttribute symbol
             var _generatedPropertyAttributeSymbol =
-                context.Compilation.GetTypeByMetadataName("CustomMayd.SourceGenerators.NotifyPropertyChangedAttribute");
+                context.Compilation.GetTypeByMetadataName("CustomMayd.SourceGenerators.GenerateIDataErrorInfoAttribute");
 
             if (_generatedPropertyAttributeSymbol != null)
             {
                 // Search in all types defined in the current compilation (not in the dependents)
                 var query = from typeSymbol in context.Compilation.SourceModule.GlobalNamespace.GetNamespaceTypes()
-                            from property in typeSymbol.GetFields()
 
                                 // Find the attribute on the field
-                            let info = property.FindAttributeFlattened(_generatedPropertyAttributeSymbol)
+                            let info = typeSymbol.FindAttributeFlattened(_generatedPropertyAttributeSymbol)
                             where info != null
-
-                            // Group properties by type
-                            group property by typeSymbol into g
-                            select g;
+                            select typeSymbol;
 
                 foreach (var type in query)
                 {
-                  
                     //Debug.WriteLine($"SourceGen: Type={type}");
 
                     // Let's generate the needed class
@@ -58,68 +59,14 @@ namespace CustomMayd.SourceGenerators
                     builder.AppendLineInvariant("using Uno.Extensions;");
                     builder.AppendLineInvariant("using Uno.Logging;");
 
-                    using (builder.BlockInvariant($"namespace {type.Key.ContainingNamespace}"))
+                    using (builder.BlockInvariant($"namespace {type.ContainingNamespace}"))
                     {
-                        using (builder.BlockInvariant($"partial class {type.Key.Name} : INotifyPropertyChanged, INotifyDataErrorInfo"))
+                        using (builder.BlockInvariant($"partial class {type.Name} : INotifyDataErrorInfo"))
                         {
                             builder.AppendLineInvariant($"private Dictionary<string, List<string>> _errors = new Dictionary<string, List<string>>();");
-                            builder.AppendLineInvariant($"protected CoreDispatcher Dispatcher => CoreApplication.MainView.Dispatcher;");
-                            builder.AppendLineInvariant($"public event PropertyChangedEventHandler PropertyChanged;");
+
                             builder.AppendLineInvariant($"public bool HasErrors => _errors.Any();");
                             builder.AppendLineInvariant($"public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;");
-
-                            foreach (var fieldInfo in type)
-                            {
-                                var propertyName = fieldInfo.Name.TrimStart('_');
-
-#if DEBUG
-                                if (!Debugger.IsAttached)
-                                {
-                                    Debugger.Launch();
-                                }
-#endif                                 
-                                var attrs = fieldInfo.GetAllAttributes();
-
-                                foreach (var attr in attrs)
-                                {
-                                    if (attr.AttributeClass.Name == "NotifyPropertyChangedAttribute")
-                                    {
-                                        continue;
-                                    }
-
-                                    if (attr.ConstructorArguments.Any())
-                                    {
-                                        builder.AppendLineInvariant($"[{attr.AttributeClass}({attr.ConstructorArguments.First().Value})]");
-                                    }
-                                    else
-                                    {
-                                        builder.AppendLineInvariant($"[{attr.AttributeClass}]");
-                                    }
-                                    //var a = attrs.Skip(1).First().ConstructorArguments;
-                                    //var na = attrs.First().NamedArguments;
-                                    //var f = na.First();
-
-                                }
-
-
-                                // Uppercase name for camel case
-                                propertyName = propertyName[0].ToString().ToUpperInvariant() + propertyName.Substring(1);
-
-                                using (builder.BlockInvariant($"public {fieldInfo.Type} {propertyName}"))
-                                {
-                                    builder.AppendLineInvariant($"get => {fieldInfo.Name};");
-
-                                    using (builder.BlockInvariant($"set"))
-                                    {
-                                        builder.AppendLineInvariant($"var previous = {fieldInfo.Name};");
-                                        builder.AppendLineInvariant($"SetProperty(ref {fieldInfo.Name}, value);");
-                                        builder.AppendLineInvariant($"On{propertyName}Changed(previous, value);");
-                                        builder.AppendLineInvariant($"ValidateProperty(value);");
-                                    }
-                                }
-
-                                builder.AppendLineInvariant($"partial void On{propertyName}Changed({fieldInfo.Type} previous, {fieldInfo.Type} value);");
-                            }
 
                             using (builder.BlockInvariant($"public IEnumerable GetErrors([CallerMemberName] string propertyName = null)"))
                             {
@@ -190,43 +137,43 @@ namespace CustomMayd.SourceGenerators
                                 builder.AppendLineInvariant($"ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(string.Empty));");
                             }
 
-                            using (builder.BlockInvariant($"private bool SetProperty<T>(ref T backingVariable, T value, [CallerMemberName] string propertyName = null)"))
-                            {
-                                builder.AppendLineInvariant($"if (EqualityComparer<T>.Default.Equals(backingVariable, value)) return false;");
-                                builder.AppendLineInvariant($"backingVariable = value;");
-                                builder.AppendLineInvariant($"RaisePropertyChanged(propertyName);");
-                                builder.AppendLineInvariant($"return true;");
-                            }
+                            //using (builder.BlockInvariant($"private bool SetProperty<T>(ref T backingVariable, T value, [CallerMemberName] string propertyName = null)"))
+                            //{
+                            //    builder.AppendLineInvariant($"if (EqualityComparer<T>.Default.Equals(backingVariable, value)) return false;");
+                            //    builder.AppendLineInvariant($"backingVariable = value;");
+                            //    builder.AppendLineInvariant($"RaisePropertyChanged(propertyName);");
+                            //    builder.AppendLineInvariant($"return true;");
+                            //}
 
-                            using (builder.BlockInvariant($"private void RaisePropertyChanged([CallerMemberName] string propertyName = null)"))
-                            {
-                                builder.AppendLineInvariant($"#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed");
-                                builder.AppendLineInvariant($"DispatchAsync(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)));");
-                                builder.AppendLineInvariant($"#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed");
-                            }
+                            //using (builder.BlockInvariant($"private void RaisePropertyChanged([CallerMemberName] string propertyName = null)"))
+                            //{
+                            //    builder.AppendLineInvariant($"#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed");
+                            //    builder.AppendLineInvariant($"DispatchAsync(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)));");
+                            //    builder.AppendLineInvariant($"#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed");
+                            //}
 
-                            using (builder.BlockInvariant($"private async Task DispatchAsync(DispatchedHandler callback)"))
-                            {
-                                builder.AppendLineInvariant($"var hasThreadAccess =");
-                                builder.AppendLineInvariant($"#if __WASM__");
-                                builder.AppendLineInvariant($"true;");
-                                builder.AppendLineInvariant($"#else");
-                                builder.AppendLineInvariant($"Dispatcher.HasThreadAccess;");
-                                builder.AppendLineInvariant($"#endif");
-                                using (builder.BlockInvariant($"if (hasThreadAccess)"))
-                                {
-                                    builder.AppendLineInvariant($"callback.Invoke();");
-                                }
-                                using (builder.BlockInvariant($"else"))
-                                {
-                                    builder.AppendLineInvariant($"await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, callback);");
-                                }
-                            }
+                            //using (builder.BlockInvariant($"private async Task DispatchAsync(DispatchedHandler callback)"))
+                            //{
+                            //    builder.AppendLineInvariant($"var hasThreadAccess =");
+                            //    builder.AppendLineInvariant($"#if __WASM__");
+                            //    builder.AppendLineInvariant($"true;");
+                            //    builder.AppendLineInvariant($"#else");
+                            //    builder.AppendLineInvariant($"Dispatcher.HasThreadAccess;");
+                            //    builder.AppendLineInvariant($"#endif");
+                            //    using (builder.BlockInvariant($"if (hasThreadAccess)"))
+                            //    {
+                            //        builder.AppendLineInvariant($"callback.Invoke();");
+                            //    }
+                            //    using (builder.BlockInvariant($"else"))
+                            //    {
+                            //        builder.AppendLineInvariant($"await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, callback);");
+                            //    }
+                            //}
 
                         }
                     }
 
-                    var sanitizedName = type.Key.ToDisplayString().Replace(".", "_").Replace("+", "_");
+                    var sanitizedName = type.ToDisplayString().Replace(".", "_").Replace("+", "_");
                     context.AddSource(sanitizedName, SourceText.From(builder.ToString(), Encoding.UTF8));
                 }
             }

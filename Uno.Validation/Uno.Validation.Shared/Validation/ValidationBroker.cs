@@ -24,7 +24,8 @@ namespace Uno.Validation.Shared.Validation
 {
     public class ValidationBroker : IDisposable
     {
-        private static SolidColorBrush redBrush = new SolidColorBrush(Colors.Red);
+        private static SolidColorBrush RedBrush = new SolidColorBrush(Colors.Red);
+        private static SolidColorBrush WhiteBrush = new SolidColorBrush(Colors.White);
 
         private Panel _parentPanel;
         private bool _disposedValue;
@@ -43,7 +44,7 @@ namespace Uno.Validation.Shared.Validation
             _errorPopup = new Popup();
             var r = new Rectangle();
             r.Width = 8;
-            r.Fill = redBrush;
+            r.Fill = RedBrush;
             _errorPopup.Child = r;
         }
 
@@ -127,7 +128,11 @@ namespace Uno.Validation.Shared.Validation
 
                     var rectangle = _errorPopup.Child as Rectangle;
                     rectangle.Height = _control.ActualHeight;
-                    rectangle.SetValue(ToolTipService.ToolTipProperty, sb.ToString());
+                    var toolTip = new ToolTip();
+                    toolTip.Content = sb.ToString().Trim();
+                    toolTip.Background = RedBrush;
+                    toolTip.Foreground = WhiteBrush;
+                    ToolTipService.SetToolTip(rectangle, toolTip);
 #if NETFX_CORE
                     this.Log().Debug($"NETFX code for Popup");
                     _errorPopup.Translation = new System.Numerics.Vector3((float)point.X - 10, (float)point.Y, 0);

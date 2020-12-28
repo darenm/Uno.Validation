@@ -20,6 +20,7 @@
             <TextBox Margin="0,8" Name="First" Header="First Name" Text="{x:Bind ViewModel.FirstName, Mode=TwoWay }"  ap:ValidationService.PropertyName="FirstName"/>
             <TextBox Margin="0,8" Name="Last" Header="Last Name" Text="{Binding LastName, Mode=TwoWay }" ap:ValidationService.PropertyName="LastName"/>
             <CheckBox Margin="0,8" IsChecked="{x:Bind ViewModel.IsRequired, Mode=TwoWay}" ap:ValidationService.PropertyName="IsRequired" >Is Required</CheckBox>
+            <local:ValidationSummary ViewModel="{x:Bind ViewModel, Mode=OneWay}"/>
             <Button Click="{x:Bind ViewModel.Validate}" Content="Click Me" Margin="0,8"/>
 
         </StackPanel>
