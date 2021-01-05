@@ -11,7 +11,7 @@
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}">
-                        <Grid Name="ErrorsGrid">
+                        <Grid Name="ErrorsGrid" >
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition/>
@@ -19,9 +19,15 @@
                             <Border Background="Red">
                                 <TextBlock Foreground="White" Name="Title" Margin="4"/>
                             </Border>
-                            <ScrollViewer Grid.Row="1" Margin="4">
-                                <ItemsControl Name="ErrorList"/>
-                            </ScrollViewer>
+                            <ItemsControl Name="ErrorList" Grid.Row="1" Margin="4">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" 
+                                                       TextTrimming="CharacterEllipsis" 
+                                                       ToolTipService.ToolTip="{Binding}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </Grid>
                     </Border>
                 </ControlTemplate>

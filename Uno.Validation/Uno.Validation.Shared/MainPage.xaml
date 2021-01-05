@@ -15,7 +15,7 @@
 
     <Grid>
         <StackPanel Margin="24"
-                    Width="400"
+                    Width="300"
                     HorizontalAlignment="Left">
             <TextBox Margin="0,8" Name="First" Header="First Name" Text="{x:Bind ViewModel.FirstName, Mode=TwoWay }"  ap:ValidationService.PropertyName="FirstName"/>
             <TextBox Margin="0,8" Name="Last" Header="Last Name" Text="{Binding LastName, Mode=TwoWay }" ap:ValidationService.PropertyName="LastName"/>
