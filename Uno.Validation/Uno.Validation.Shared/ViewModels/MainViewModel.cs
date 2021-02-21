@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Uno.Validation.Shared.Validation;
+using Windows.UI.Xaml.Data;
 
 namespace Uno.Validation.Shared.ViewModels
 {
+    [Bindable]
     public class MainViewModel : ValidatingBase
     {
         private string _firstName;

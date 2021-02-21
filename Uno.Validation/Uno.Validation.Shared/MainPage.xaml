@@ -10,7 +10,7 @@
     mc:Ignorable="d">
 
     <Page.DataContext>
-        <viewmodels:MainViewModel x:Name="ViewModel" />
+        <viewmodels:MainViewModel x:Name="ViewModel" x:FieldModifier="public" />
     </Page.DataContext>
 
     <Grid>

@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Uno.Extensions.Specialized;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Documents;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
+using Uno.Validation.Shared.ViewModels;
+using System.Collections.ObjectModel;
+using Uno.Extensions;
+using Uno.Logging;
 
 // The Templated Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234235
 
@@ -17,9 +14,12 @@ namespace Uno.Validation
 {
     public sealed class ValidationSummary : Control
     {
+
         public ValidationSummary()
         {
             this.DefaultStyleKey = typeof(ValidationSummary);
+            this.Log().Debug($"ValidationSummary constructor");
+
         }
 
         public INotifyDataErrorInfo ViewModel
@@ -31,9 +31,12 @@ namespace Uno.Validation
         // Using a DependencyProperty as the backing store for ViewModel.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ViewModelProperty =
             DependencyProperty.Register("ViewModel", typeof(INotifyDataErrorInfo), typeof(ValidationSummary), new PropertyMetadata(null, ViewModelChanged));
+
         private Grid _errorsGrid;
         private ItemsControl _errorList;
         private TextBlock _title;
+        private ObservableCollection<string> _boundErrors = new ObservableCollection<string>();
+
 
         private static void ViewModelChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -68,15 +71,17 @@ namespace Uno.Validation
                 return;
             }
 
-            var allErrors = newViewModel.GetErrors("__AllErrors__").Cast<string>();
+            var allErrors = newViewModel.GetErrors(ValidatingBase.AllErrorsToken).Cast<string>();
             if (allErrors.Any())
             {
+                this.Log().Debug($"We have errors - {allErrors.Count()}");
+
                 _errorsGrid.Visibility = Visibility.Visible;
                 _title.Text = $"{allErrors.Count()} error{(allErrors.Count() > 1 ? "s" : "")}";
-                _errorList.Items.Clear();
+                _boundErrors.Clear();
                 foreach (var error in allErrors)
                 {
-                    _errorList.Items.Add(error);
+                    _boundErrors.Add(error);
                 }
             }
             else
@@ -105,6 +110,7 @@ namespace Uno.Validation
             if (GetTemplateChild("ErrorList") is ItemsControl errorList)
             {
                 _errorList = errorList;
+                _errorList.ItemsSource = _boundErrors;
             }
 
             if (GetTemplateChild("ErrorsGrid") is Grid errorsGrid)

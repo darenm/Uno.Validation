@@ -14,6 +14,7 @@ namespace Uno.Validation.Shared.ViewModels
     public class ValidatingBase : ViewModelBase, INotifyDataErrorInfo
     {
         private Dictionary<string, List<string>> _errors = new Dictionary<string, List<string>>();
+        internal const string AllErrorsToken = "__AllErrors__";
 
         public bool HasErrors => _errors.Any();
 
@@ -26,7 +27,7 @@ namespace Uno.Validation.Shared.ViewModels
                 return _errors[propertyName];
             }
 
-            if (propertyName == "__AllErrors__")
+            if (propertyName == AllErrorsToken)
             {
                 var allErrors = new List<string>();
                 foreach (var property in _errors)

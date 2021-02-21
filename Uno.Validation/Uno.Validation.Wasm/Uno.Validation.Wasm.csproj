@@ -39,14 +39,14 @@
     <!-- Note that for WebAssembly version 1.1.1 of the console logger required -->
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.1.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Filter" Version="1.1.1" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="6.0.0-preview.1.21102.12" />
     <PackageReference Include="Uno.GalaSoft.MvvmLight" Version="5.4.0-uno.138" />
-    <PackageReference Include="Uno.Microsoft.Toolkit.Uwp" Version="6.1.0-build.205.g2e0e348372" />
-    <PackageReference Include="Uno.UI" Version="3.4.0" />
-    <PackageReference Include="Uno.UI.WebAssembly" Version="3.4.0" />
-    <PackageReference Include="Uno.UI.RemoteControl" Version="3.4.0" Condition="'$(Configuration)'=='Debug'" />
-    <PackageReference Include="Uno.Wasm.Bootstrap" Version="1.3.6" />
-    <PackageReference Include="Uno.Wasm.Bootstrap.DevServer" Version="1.3.6" />
+    <PackageReference Include="Uno.Microsoft.Toolkit.Uwp" Version="6.1.0-build.207.gcac670e618" />
+    <PackageReference Include="Uno.UI" Version="3.6.0-dev.123" />
+    <PackageReference Include="Uno.UI.WebAssembly" Version="3.6.0-dev.123" />
+    <PackageReference Include="Uno.UI.RemoteControl" Version="3.6.0-dev.123" Condition="'$(Configuration)'=='Debug'" />
+    <PackageReference Include="Uno.Wasm.Bootstrap" Version="2.0.0-dev.167" />
+    <PackageReference Include="Uno.Wasm.Bootstrap.DevServer" Version="2.0.0-dev.167" />
   </ItemGroup>
   <Import Project="..\Uno.Validation.Shared\Uno.Validation.Shared.projitems" Label="Shared" Condition="Exists('..\Uno.Validation.Shared\Uno.Validation.Shared.projitems')" />
 </Project>
